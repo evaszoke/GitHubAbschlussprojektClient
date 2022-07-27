@@ -1,0 +1,12 @@
+/* Buttons */
+
+.button {
+		-fx-background-color: lightblue;
+		-fx-font-size: 20;
+		-fx-border-style: solid;
+		-fx-border-color: blue;
+		-fx-border-width: 5px;	
+}
+.pane{
+		-fx-border-color : red;
+}
