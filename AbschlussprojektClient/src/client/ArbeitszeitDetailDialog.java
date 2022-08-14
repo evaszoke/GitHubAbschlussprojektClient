@@ -1,6 +1,6 @@
 package client;
 
-import java.time.LocalTime;
+
 
 import javafx.beans.value.ChangeListener;
 import javafx.beans.value.ObservableValue;
@@ -22,8 +22,6 @@ import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.layout.GridPane;
 import javafx.scene.layout.HBox;
 import javafx.util.Callback;
-import klassen.Auftraggeber;
-import klassen.AuftraggeberList;
 import klassen.Mitarbeiter;
 import klassen.MitarbeiterList;
 import klassen.Projekt;

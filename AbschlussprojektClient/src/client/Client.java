@@ -336,6 +336,8 @@ public class Client extends Application {
 		bearbeitenArbeitszeit.setDisable(true);
 		Button entfernenArbeitszeit = new Button("Entfernen");
 		entfernenArbeitszeit.setDisable(true);
+		Button arbeitszeitMitarbeiter = new Button("Arbeitszeitaufstellung Mitarbeiter");
+		Button arbeitszeitProjekt = new Button("Arbeitszeitaufstellung Projekt");
 
 		tvArbeitszeit.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<ArbeitszeitFX>() {
 
@@ -354,7 +356,7 @@ public class Client extends Application {
 
 		});
 
-		HBox buttonsArbeitszeit = new HBox(10, neuArbeitszeit, bearbeitenArbeitszeit, entfernenArbeitszeit);
+		HBox buttonsArbeitszeit = new HBox(10, neuArbeitszeit, bearbeitenArbeitszeit, entfernenArbeitszeit, arbeitszeitMitarbeiter, arbeitszeitProjekt);
 		VBox vbArbeitszeit = new VBox(10, tvArbeitszeit, buttonsArbeitszeit);
 		vbArbeitszeit.setPadding(new Insets(5));
 		arbeitszeitTab.setContent(vbArbeitszeit);
@@ -362,12 +364,11 @@ public class Client extends Application {
 		neuArbeitszeit.setOnAction(e -> neueArbeitszeit());
 		entfernenArbeitszeit.setOnAction(e -> loescheArbeitszeit(tvArbeitszeit.getSelectionModel().getSelectedItem()));
 		bearbeitenArbeitszeit.setOnAction(e -> bearbeiteArbeitszeit(tvArbeitszeit.getSelectionModel().getSelectedItem()));
-
-
-
-
-
-
+		arbeitszeitMitarbeiter.setOnAction(e -> abfragenArbeitszeit());
+		arbeitszeitProjekt.setOnAction(e -> abfragenProjektzeit());
+		
+		
+		
 		primaryStage.setScene(new Scene(tabPane));
 		primaryStage.setTitle("Zeiterfassung Tool");
 		primaryStage.show();
@@ -375,6 +376,17 @@ public class Client extends Application {
 
 
 	}
+
+	private void abfragenProjektzeit() {
+		ArbeitszeitFX arbeitszeitFX = new ArbeitszeitFX(new Arbeitszeit());
+		new ProjektArbeitszeitDetailDialog(arbeitszeitFX).showAndWait();
+	}
+
+	private void abfragenArbeitszeit() {
+		ArbeitszeitFX arbeitszeitFX = new ArbeitszeitFX(new Arbeitszeit());
+		new MitarbeiterArbeitszeitDetailDialog(arbeitszeitFX).showAndWait();
+	}
+
 
 	private void loescheArbeitszeit(ArbeitszeitFX arbeitszeitFX) {
 		ServiceFunctionsReturn sfr = ServiceFunctions.delete("arbeitszeit", Long.toString(arbeitszeitFX.getZeilennummer()));
