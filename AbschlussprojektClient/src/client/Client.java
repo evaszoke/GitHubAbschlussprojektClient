@@ -17,14 +17,19 @@ import javafx.scene.control.Alert.AlertType;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonBar.ButtonData;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
+import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
 import javafx.scene.layout.VBox;
+import javafx.scene.paint.Color;
+import javafx.scene.text.Font;
 import javafx.stage.Stage;
 import klassen.Arbeitszeit;
 import klassen.ArbeitszeitList;
@@ -46,6 +51,15 @@ public class Client extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
+		Tab homeTab = new Tab();
+		homeTab.setText("STARTSEITE");
+		Label lbl = new Label();
+		lbl.setPrefSize(500, 200);
+		lbl.setText("Willkommen!");
+		lbl.setFont(new Font("Sherif", 70));
+		BorderPane bp = new BorderPane();
+		homeTab.setContent(bp);
+		bp.setCenter(lbl);
 		Tab mitarbeiterTab = new Tab();
 		mitarbeiterTab.setText("MITARBEITER");
 		Tab auftraggeberTab = new Tab();
@@ -55,10 +69,12 @@ public class Client extends Application {
 		Tab arbeitszeitTab = new Tab();
 		arbeitszeitTab.setText("ARBEITSZEIT");
 		TabPane tabPane = new TabPane();
-		tabPane.getTabs().addAll(mitarbeiterTab, auftraggeberTab, projektTab, arbeitszeitTab);
-		tabPane.setSide(Side.TOP);
+		tabPane.getTabs().addAll(homeTab, mitarbeiterTab, auftraggeberTab, projektTab, arbeitszeitTab);
+		tabPane.setSide(Side.LEFT);
+		tabPane.setRotateGraphic(false);
 		tabPane.getStylesheets().add("Style.css");
-		
+		tabPane.setId("pane");
+
 
 
 		TableColumn<MitarbeiterFX, Integer> idCol = new TableColumn<>("Id");
@@ -134,8 +150,8 @@ public class Client extends Application {
 		VBox vbMitarbeiter = new VBox(10, tvMitarbeiter, buttonsMitarbeiter);
 		vbMitarbeiter.setPadding(new Insets(5));
 		mitarbeiterTab.setContent(vbMitarbeiter);
-		
-	
+
+
 
 		neuMitarbeiter.setOnAction(e -> neuerMitarbeiter());
 		entfernenMitarbeiter.setOnAction(e -> loescheMitarbeiter(tvMitarbeiter.getSelectionModel().getSelectedItem()));
@@ -145,19 +161,19 @@ public class Client extends Application {
 
 
 		TableColumn<AuftraggeberFX, Integer> idColAg = new TableColumn<>("Id");
-		idColAg.setPrefWidth(50);
+		idColAg.setPrefWidth(100);
 		idColAg.setCellValueFactory(new PropertyValueFactory<>("id"));
 		TableColumn<AuftraggeberFX, String> nameColAg = new TableColumn<>("Name");
-		nameColAg.setPrefWidth(150);
+		nameColAg.setPrefWidth(250);
 		nameColAg.setCellValueFactory(new PropertyValueFactory<>("name"));
 		TableColumn<AuftraggeberFX, String> adresseColAg = new TableColumn<>("Adresse");
-		adresseColAg.setPrefWidth(150);
+		adresseColAg.setPrefWidth(300);
 		adresseColAg.setCellValueFactory(new PropertyValueFactory<>("adresse"));
 		TableColumn<AuftraggeberFX, String> telefonColAg = new TableColumn<>("Telefon");
-		telefonColAg.setPrefWidth(50);
+		telefonColAg.setPrefWidth(250);
 		telefonColAg.setCellValueFactory(new PropertyValueFactory<>("telefon"));
 		TableColumn<AuftraggeberFX, String> emailColAg = new TableColumn<>("Email");
-		emailColAg.setPrefWidth(150);
+		emailColAg.setPrefWidth(250);
 		emailColAg.setCellValueFactory(new PropertyValueFactory<>("email"));
 
 
@@ -216,26 +232,30 @@ public class Client extends Application {
 
 
 		TableColumn<ProjektFX, Integer> idColProj = new TableColumn<>("Id");
-		idColProj.setPrefWidth(50);
+		idColProj.setPrefWidth(100);
 		idColProj.setCellValueFactory(new PropertyValueFactory<>("id"));
 		TableColumn<ProjektFX, String> nameColProj = new TableColumn<>("Name");
-		nameColProj.setPrefWidth(150);
+		nameColProj.setPrefWidth(250);
 		nameColProj.setCellValueFactory(new PropertyValueFactory<>("name"));
 		TableColumn<ProjektFX, String> adresseColProj = new TableColumn<>("Adresse");
-		adresseColProj.setPrefWidth(150);
+		adresseColProj.setPrefWidth(300);
 		adresseColProj.setCellValueFactory(new PropertyValueFactory<>("adresse"));
 		TableColumn<ProjektFX, String> telefonColProj = new TableColumn<>("Telefon");
-		telefonColProj.setPrefWidth(50);
+		telefonColProj.setPrefWidth(200);
 		telefonColProj.setCellValueFactory(new PropertyValueFactory<>("telefon"));
 		TableColumn<ProjektFX, String> kontaktCol = new TableColumn<>("Kontaktperson");
-		kontaktCol.setPrefWidth(150);
+		kontaktCol.setPrefWidth(200);
 		kontaktCol.setCellValueFactory(new PropertyValueFactory<>("kontaktperson"));
+		TableColumn<ProjektFX, Boolean> abgeschlossenCol = new TableColumn<>("Abgeschlossen");
+		abgeschlossenCol.setPrefWidth(100);
+		abgeschlossenCol.setCellValueFactory(new PropertyValueFactory<>("abgeschlossen"));
+
 
 		TableView<ProjektFX> tvProjekt = new TableView<>(olProjekt);
-		tvProjekt.getColumns().addAll(idColProj, nameColProj, adresseColProj, telefonColProj, kontaktCol);
+		tvProjekt.getColumns().addAll(idColProj, nameColProj, adresseColProj, telefonColProj, kontaktCol, abgeschlossenCol);
 		tvMitarbeiter.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
-		
-		
+
+
 
 		ServiceFunctionsReturn sfrPr = ServiceFunctions.get("projektlist", null);
 		if(sfrPr.isRc()) {
@@ -277,20 +297,20 @@ public class Client extends Application {
 		VBox vbProjekt = new VBox(10, tvProjekt, buttonsProjekt);
 		vbProjekt.setPadding(new Insets(5));
 		projektTab.setContent(vbProjekt);
-		
-		
+
+
 
 		neuProjekt.setOnAction(e -> neuerProjekt());
 		entfernenProjekt.setOnAction(e -> loescheProjekt(tvProjekt.getSelectionModel().getSelectedItem()));
 		bearbeitenProjekt.setOnAction(e -> bearbeiteProjekt(tvProjekt.getSelectionModel().getSelectedItem()));
 
-		
-		
-		
-		
-		
+
+
+
+
+
 		TableColumn<ArbeitszeitFX, Integer> nrColAz = new TableColumn<>("Zeilennummer");
-		nrColAz.setPrefWidth(50);
+		nrColAz.setPrefWidth(100);
 		nrColAz.setCellValueFactory(new PropertyValueFactory<>("zeilennummer"));
 		TableColumn<ArbeitszeitFX, Mitarbeiter> mitarbeiterName = new TableColumn<>("Mitarbeiter");
 		mitarbeiterName.setPrefWidth(150);
@@ -302,7 +322,7 @@ public class Client extends Application {
 		vonColAz.setPrefWidth(150);
 		vonColAz.setCellValueFactory(new PropertyValueFactory<>("von"));
 		TableColumn<ArbeitszeitFX, String> bisColAz = new TableColumn<>("Bis");
-		bisColAz.setPrefWidth(50);
+		bisColAz.setPrefWidth(150);
 		bisColAz.setCellValueFactory(new PropertyValueFactory<>("bis"));
 		TableColumn<ArbeitszeitFX, Double> stundenGesamt = new TableColumn<>("StundenGesamt");
 		stundenGesamt.setPrefWidth(150);
@@ -366,9 +386,9 @@ public class Client extends Application {
 		bearbeitenArbeitszeit.setOnAction(e -> bearbeiteArbeitszeit(tvArbeitszeit.getSelectionModel().getSelectedItem()));
 		arbeitszeitMitarbeiter.setOnAction(e -> abfragenArbeitszeit());
 		arbeitszeitProjekt.setOnAction(e -> abfragenProjektzeit());
-		
-		
-		
+
+
+
 		primaryStage.setScene(new Scene(tabPane));
 		primaryStage.setTitle("Zeiterfassung Tool");
 		primaryStage.show();
@@ -389,15 +409,20 @@ public class Client extends Application {
 
 
 	private void loescheArbeitszeit(ArbeitszeitFX arbeitszeitFX) {
-		ServiceFunctionsReturn sfr = ServiceFunctions.delete("arbeitszeit", Long.toString(arbeitszeitFX.getZeilennummer()));
-		if(sfr.isRc()) {
-			new Alert(AlertType.INFORMATION, "gelöscht.").showAndWait();
-			leseArbeitszeitliste();
-		}
+		Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie die Arbeitszeitzeile löschen?");
+		Optional<ButtonType> result = alert.showAndWait();
+		if(result.get() == ButtonType.OK) {
+			ServiceFunctionsReturn sfr = ServiceFunctions.delete("arbeitszeit", Long.toString(arbeitszeitFX.getZeilennummer()));
+			if(sfr.isRc()) {
+				new Alert(AlertType.INFORMATION, "gelöscht.").showAndWait();
+				leseArbeitszeitliste();
+			}
 
-		else {
-			new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
+			else {
+				new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
+			}
 		}
+		
 	}
 
 	private void bearbeiteArbeitszeit(ArbeitszeitFX arbeitszeitFX) {
@@ -407,7 +432,7 @@ public class Client extends Application {
 			leseArbeitszeitliste();
 		}
 		else {
-			new Alert(AlertType.ERROR, "nicht geändert").showAndWait();
+			new Alert(AlertType.INFORMATION, "nicht geändert").showAndWait();
 		}
 	}
 
@@ -433,7 +458,7 @@ public class Client extends Application {
 			//Exceptiontext aus der XML Darstellung vom Server deserialisieren
 			new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
 		}
-		
+
 	}
 
 	private void loescheProjekt(ProjektFX projektFX) {
@@ -445,18 +470,24 @@ public class Client extends Application {
 				break;
 			}
 		}
-		if(inVerwendung = false) {
-			ServiceFunctionsReturn sfr = ServiceFunctions.delete("projekt", Long.toString(projektFX.getId()));
-			if(sfr.isRc()) {
-				new Alert(AlertType.INFORMATION, "gelöscht.").showAndWait();
-				leseProjektliste();
+		if(inVerwendung == false) {
+			Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie das Projekt löschen?");
+			Optional<ButtonType> result = alert.showAndWait();
+			if(result.get() == ButtonType.OK) {
+				ServiceFunctionsReturn sfr = ServiceFunctions.delete("projekt", Long.toString(projektFX.getId()));
+				if(sfr.isRc()) {
+					new Alert(AlertType.INFORMATION, "gelöscht.").showAndWait();
+					leseProjektliste();
+				}
+				else {
+					new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
+				}
 			}
 
-			else {
-				new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
-			}
+
+
 		}
-			
+
 	}
 
 	private void bearbeiteProjekt(ProjektFX projektFX) {
@@ -466,7 +497,7 @@ public class Client extends Application {
 			leseProjektliste();
 		}
 		else {
-			new Alert(AlertType.ERROR, "nicht geändert").showAndWait();
+			new Alert(AlertType.INFORMATION, "nicht geändert").showAndWait();
 		}
 	}
 
@@ -502,23 +533,27 @@ public class Client extends Application {
 			leseAuftraggeberliste();
 		}
 		else {
-			new Alert(AlertType.ERROR, "nicht geändert").showAndWait();
+			new Alert(AlertType.INFORMATION, "nicht geändert").showAndWait();
 		}
 	}
 
 	private void loescheAuftraggeber(AuftraggeberFX auftraggeberFX) {
-
+		boolean inVerwendung = false;
 		for(ProjektFX einP : olProjekt) {
 			if(auftraggeberFX.getId() == einP.getAuftraggeber().getId()) {
 				new Alert(AlertType.INFORMATION, "Auftraggeber in Verwendung, kann nicht gelöscht werden").showAndWait();
+				inVerwendung = true;
 				break;
 			}
-			else{
+		}
+		if(inVerwendung == false) {
+			Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie den Auftraggeber löschen?");
+			Optional<ButtonType> result = alert.showAndWait();
+			if(result.get() == ButtonType.OK) {
 				ServiceFunctionsReturn sfr = ServiceFunctions.delete("auftraggeber", Long.toString(auftraggeberFX.getId()));
 				if(sfr.isRc()) {
 					new Alert(AlertType.INFORMATION, "gelöscht.").showAndWait();
 					leseAuftraggeberliste();
-					break;
 				}
 				else {
 					new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
@@ -559,20 +594,35 @@ public class Client extends Application {
 			leseMitarbeiterliste();
 		}
 		else {
-			new Alert(AlertType.ERROR, "nicht geändert").showAndWait();
+			new Alert(AlertType.INFORMATION, "nicht geändert").showAndWait();
 		}
 	}
 
 	private void loescheMitarbeiter(MitarbeiterFX mitarbeiterFX) {
+		boolean inVerwendung = false;
+		for(ArbeitszeitFX einAz : olArbeitszeit) {
+			if(mitarbeiterFX.getId() == einAz.getMitarbeiter().getId()) {
+				new Alert(AlertType.INFORMATION, "Mitarbeiter in Verwendung, kann nicht gelöscht werden").showAndWait();
+				inVerwendung = true;
+				break;
 
-		ServiceFunctionsReturn sfr = ServiceFunctions.delete("mitarbeiter", Long.toString(mitarbeiterFX.getId()));
-		if(sfr.isRc()) {
-			new Alert(AlertType.INFORMATION, "gelöscht.").showAndWait();
-			leseMitarbeiterliste();
+			}
 		}
+		if(inVerwendung == false) {
+			Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie den Mitarbeiter löschen?");
+			Optional<ButtonType> result = alert.showAndWait();
+			if(result.get() == ButtonType.OK) {
 
-		else {
-			new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
+				ServiceFunctionsReturn sfr = ServiceFunctions.delete("mitarbeiter", Long.toString(mitarbeiterFX.getId()));
+				if(sfr.isRc()) {
+					new Alert(AlertType.INFORMATION, "gelöscht.").showAndWait();
+					leseMitarbeiterliste();
+				}
+
+				else {
+					new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
+				}
+			}
 		}
 	}
 

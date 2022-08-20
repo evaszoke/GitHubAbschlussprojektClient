@@ -41,6 +41,8 @@ public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		gp.setHgap(10);
 		gp.setVgap(10);
 		gp.setPadding(new Insets(5));
+		gp.setId("dialog");
+		this.getDialogPane().getStylesheets().add("Style.css");
 		
 		gp.add(new Label("Mitarbeiter"), 0, 0);
 		
@@ -67,9 +69,8 @@ public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		dpDatumBis.setPrefWidth(200);
 		gp.add(dpDatumBis, 1, 2);
 		
+//		HBox hbButton = new HBox();
 		Button abfragen = new Button("Abfragen");
-		gp.add(abfragen, 0, 3);
-		
 		
 		TableColumn<ArbeitszeitFX, Mitarbeiter> mitarbeiterName = new TableColumn<>("Mitarbeiter");
 		mitarbeiterName.setPrefWidth(150);
@@ -89,7 +90,8 @@ public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		
 		
 		HBox hb = new HBox(10, new Label("Arbeitszeit gesamt: "), gesamt);
-		VBox vb = new VBox(10, gp, tvMitarbeiterArbeitszeit, hb);
+		hb.setId("HBox");
+		VBox vb = new VBox(10, gp, abfragen, tvMitarbeiterArbeitszeit, hb);
 		
 		this.getDialogPane().setContent(vb);
 		

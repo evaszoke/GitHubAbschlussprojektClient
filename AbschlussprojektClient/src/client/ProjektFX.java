@@ -1,5 +1,6 @@
 package client;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
 import javafx.beans.property.SimpleStringProperty;
@@ -14,6 +15,7 @@ public class ProjektFX {
 	private SimpleStringProperty adresse;
 	private SimpleStringProperty telefon;
 	private SimpleStringProperty kontaktperson;
+	private SimpleBooleanProperty abgeschlossen;
 	private Auftraggeber auftraggeber;
 	
 	public ProjektFX(Projekt serverProjekt) {
@@ -25,6 +27,7 @@ public class ProjektFX {
 		adresse = new SimpleStringProperty(serverProjekt.getAdresse());
 		telefon = new SimpleStringProperty(serverProjekt.getTelefon());
 		kontaktperson = new SimpleStringProperty(serverProjekt.getKontaktperson());
+		abgeschlossen = new SimpleBooleanProperty(serverProjekt.isAbgeschlossen());
 	}
 
 	public Projekt getServerProjekt() {
@@ -118,11 +121,28 @@ public class ProjektFX {
 	public final void setKontaktperson(final String kontaktperson) {
 		this.kontaktpersonProperty().set(kontaktperson);
 	}
+	
+	public final SimpleBooleanProperty abgeschlossenProperty() {
+		return this.abgeschlossen;
+	}
+	
+
+	public final boolean isAbgeschlossen() {
+		return this.abgeschlossenProperty().get();
+	}
+	
+
+	public final void setAbgeschlossen(final boolean abgeschlossen) {
+		this.abgeschlossenProperty().set(abgeschlossen);
+	}
 
 	@Override
 	public String toString() {
 		return name.get();
 	}
+
+	
+	
 
 	
 	

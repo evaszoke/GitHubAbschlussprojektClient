@@ -37,6 +37,8 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		gp.setHgap(10);
 		gp.setVgap(10);
 		gp.setPadding(new Insets(5));
+		gp.setId("dialog");
+		this.getDialogPane().getStylesheets().add("Style.css");
 
 		gp.add(new Label("Zeilennummer"), 0, 0);
 		gp.add(new Label(Integer.toString(arbeitszeitFX.getZeilennummer())), 1, 0);
@@ -98,22 +100,34 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		gp.add(new Label("Projekt"), 0, 3);
 		gp.add(cobPr, 1, 3);
 		
-		ComboBox <Integer> cbVonSt = new ComboBox<>();  
-		cbVonSt.setItems(FXCollections.observableArrayList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23));
-		ComboBox <Integer> cbVonMin = new ComboBox<>();  
-		cbVonMin.setItems(FXCollections.observableArrayList(00, 15, 30, 45));
+		ComboBox <String> cbVonSt = new ComboBox<>();  
+		cbVonSt.setItems(FXCollections.observableArrayList("00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"));
+		ComboBox <String> cbVonMin = new ComboBox<>();  
+		cbVonMin.setItems(FXCollections.observableArrayList("00", "15", "30", "45"));
 		HBox von = new HBox(cbVonSt, cbVonMin);
 		gp.add(new Label("Von"), 0, 4);
 		gp.add(von, 1, 4);
+		if(arbeitszeitFX.getZeilennummer() != 0) {
+			String a = arbeitszeitFX.getVon().substring(0, 2);
+			cbVonSt.getSelectionModel().select(a);
+			String b = arbeitszeitFX.getVon().substring(3, 5);
+			cbVonMin.getSelectionModel().select(b);
+		}
 		
 		
-		ComboBox <Integer> cbBisSt = new ComboBox<>();  
-		cbBisSt.setItems(FXCollections.observableArrayList(0, 1, 2, 3, 4, 5, 6, 7, 8, 9, 10, 11, 12, 13, 14, 15, 16, 17, 18, 19, 20, 21, 22, 23));
-		ComboBox <Integer> cbBisMin = new ComboBox<>();  
-		cbBisMin.setItems(FXCollections.observableArrayList(00, 15, 30, 45));
+		ComboBox <String> cbBisSt = new ComboBox<>();  
+		cbBisSt.setItems(FXCollections.observableArrayList("00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"));
+		ComboBox <String> cbBisMin = new ComboBox<>();  
+		cbBisMin.setItems(FXCollections.observableArrayList("00", "15", "30", "45"));
 		HBox bis = new HBox(cbBisSt, cbBisMin);
 		gp.add(new Label("Bis"), 0, 5);
 		gp.add(bis, 1, 5);
+		if(arbeitszeitFX.getZeilennummer() != 0) {
+			String a = arbeitszeitFX.getBis().substring(0, 2);
+			cbBisSt.getSelectionModel().select(a);
+			String b = arbeitszeitFX.getBis().substring(3, 5);
+			cbBisMin.getSelectionModel().select(b);
+		}
 	
 		
 		
@@ -180,14 +194,16 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 					arbeitszeitFX.getServerArbeitszeit().setMitarbeiter(cobMa.getSelectionModel().getSelectedItem().getServerMitarbeiter());
 					arbeitszeitFX.getServerArbeitszeit().setProjekt(cobPr.getSelectionModel().getSelectedItem().getServerProjekt());
 					
-					int stunden = cbVonSt.getSelectionModel().getSelectedItem();
-					int minuten = cbVonMin.getSelectionModel().getSelectedItem();
+					int stunden = Integer.parseInt(cbVonSt.getSelectionModel().getSelectedItem());
+							
+					int minuten = Integer.parseInt(cbVonMin.getSelectionModel().getSelectedItem());
+							
 					String von = String.format("%02d:%02d", stunden, minuten);
 					
 					arbeitszeitFX.getServerArbeitszeit().setVon(von);
 					
-					int stundenBis = cbBisSt.getSelectionModel().getSelectedItem();
-					int minutenBis = cbBisMin.getSelectionModel().getSelectedItem();
+					int stundenBis = Integer.parseInt(cbBisSt.getSelectionModel().getSelectedItem());
+					int minutenBis = Integer.parseInt(cbBisMin.getSelectionModel().getSelectedItem());
 					String bis = String.format("%02d:%02d", stundenBis, minutenBis);
 					
 					

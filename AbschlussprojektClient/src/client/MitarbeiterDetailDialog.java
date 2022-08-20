@@ -24,6 +24,8 @@ public class MitarbeiterDetailDialog extends Dialog<ButtonType> {
 		gp.setHgap(10);
 		gp.setVgap(10);
 		gp.setPadding(new Insets(5));
+		gp.setId("dialog");
+		this.getDialogPane().getStylesheets().add("Style.css");
 
 		gp.add(new Label("Id"), 0, 0);
 		gp.add(new Label(Integer.toString(mitarbeiterFX.getId())), 1, 0);

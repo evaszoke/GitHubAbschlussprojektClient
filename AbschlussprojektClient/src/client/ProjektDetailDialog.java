@@ -28,6 +28,9 @@ public class ProjektDetailDialog extends Dialog<ButtonType>{
 		gp.setHgap(10);
 		gp.setVgap(10);
 		gp.setPadding(new Insets(5));
+		gp.setId("dialog");
+		this.getDialogPane().getStylesheets().add("Style.css");
+	
 
 		gp.add(new Label("Id"), 0, 0);
 		gp.add(new Label(Integer.toString(projektFX.getId())), 1, 0);
@@ -88,8 +91,11 @@ public class ProjektDetailDialog extends Dialog<ButtonType>{
 		cb.setPrefWidth(200);
 		gp.add(cb, 0, 6);
 		
-		if(cb.isSelected()) {
-			projektFX.getServerProjekt().isAbgeschlossen();
+		if(projektFX.isAbgeschlossen()) {
+			cb.setSelected(true);
+		}
+		else{ 
+			cb.setSelected(false);
 		}
 
 
@@ -126,7 +132,14 @@ public class ProjektDetailDialog extends Dialog<ButtonType>{
 					projektFX.getServerProjekt().setAdresse(txtAdresse.getText());
 					projektFX.getServerProjekt().setTelefon(txtTelefon.getText());
 					projektFX.getServerProjekt().setKontaktperson(txtKontakt.getText());
-					projektFX.getServerProjekt().setAbgeschlossen(cb.isSelected());
+					cb.setOnAction(e -> {
+						if(cb.isSelected())
+							projektFX.getServerProjekt().setAbgeschlossen(true);
+						else
+							projektFX.getServerProjekt().setAbgeschlossen(false);
+					});
+
+
 			
 					//falls id 0, neuen Auftraggeber posten (einfügen), sonst vonhanden Auftraggeber putten(update)
 					
