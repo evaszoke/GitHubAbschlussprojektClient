@@ -25,6 +25,7 @@ import javafx.geometry.Insets;
 import javafx.scene.control.Alert;
 import javafx.scene.control.Button;
 import javafx.scene.control.ButtonType;
+import javafx.scene.control.CheckBox;
 import javafx.scene.control.ComboBox;
 import javafx.scene.control.DatePicker;
 import javafx.scene.control.Dialog;
@@ -47,11 +48,18 @@ import klassen.ProjektList;
 
 public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 
+	//Instanzvariable
 	private ObservableList<ArbeitszeitFX> olProjektArbeitszeit = FXCollections.observableArrayList();
-	private TextField gesamt = new TextField();
+	private TextField gesamtZeit = new TextField();
+	private TextField gesamtPreis = new TextField();
+	private ComboBox cbfakt = new ComboBox<>();
 	Button fakturieren = new Button("Fakturieren");
+	private static final String ALLE = "alle";
+	private static final String FAKTURIERT = "fakturiert";
+	private static final String NICHT_FAKTURIERT = "nicht fakturiert";
 
 	public ProjektArbeitszeitDetailDialog(ArbeitszeitFX arbeitszeitFX) {
+		//GUI Elemente des Dialog Fensters
 		this.setTitle("Projektzeitaufstellung");
 		olProjektArbeitszeit.clear();
 		GridPane gp = new GridPane();
@@ -63,7 +71,7 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 
 		gp.add(new Label("Projekt"), 0, 0);
 
-
+		//Liste für ComboBox Projekt
 		ObservableList<ProjektFX> olpr = FXCollections.observableArrayList();
 		ServiceFunctionsReturn sfrPr = ServiceFunctions.get("projektlist", null);
 		if(sfrPr.isRc()) {
@@ -85,13 +93,21 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		DatePicker dpDatumBis = new DatePicker();   
 		dpDatumBis.setPrefWidth(200);
 		gp.add(dpDatumBis, 1, 2);
+		
+		gp.add(new Label("Auswahl"), 0, 3);
+		
+		ObservableList<String> olfakt = FXCollections.observableArrayList(ALLE, FAKTURIERT, NICHT_FAKTURIERT);
+		cbfakt.setItems(olfakt);
+		cbfakt.getSelectionModel().select(0);
+		cbfakt.setPrefWidth(200);
+		gp.add(cbfakt, 1, 3);
 
 		Button abfragen = new Button("Abfragen");
 		HBox hbButtons = new HBox(10, abfragen, fakturieren);
 
 		fakturieren.setDisable(true);
 
-
+		//TableView Arbeitszeit
 		TableColumn<ArbeitszeitFX, Projekt> projektName = new TableColumn<>("Projekt");
 		projektName.setPrefWidth(150);
 		projektName.setCellValueFactory(new PropertyValueFactory<>("projekt"));
@@ -112,22 +128,29 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		TableView<ArbeitszeitFX> tvProjektArbeitszeit = new TableView<>(olProjektArbeitszeit);
 		tvProjektArbeitszeit.getColumns().addAll(projektName, mitarbeiterName, datumColAz, stundensatzColAz, stundenGesamt);
 
-
-		HBox hb = new HBox(10, new Label("Projektpreis gesamt: "), gesamt);
-		hb.setId("HBox");
-		VBox vb = new VBox(10, gp, hbButtons, tvProjektArbeitszeit, hb);
+		HBox hbZeit = new HBox(10, new Label("Projektzeit gesamt: "), gesamtZeit);
+		HBox hbPreis = new HBox(10, new Label("Projektpreis gesamt: "), gesamtPreis);
+		hbZeit.setId("HBox");
+		hbPreis.setId("HBox");
+		VBox vb = new VBox(10, gp, hbButtons, tvProjektArbeitszeit, hbZeit, hbPreis);
+		vb.setPrefSize(600, 600);
 
 		this.getDialogPane().setContent(vb);
 
+		//Event Handler für Buttons
 		abfragen.setOnAction(e -> abfragenProjektArbeitszeit(
 				cobPr.getSelectionModel().getSelectedItem().getServerProjekt().getId(), 
-				dpDatumVon.getValue(), dpDatumBis.getValue()));
+				dpDatumVon.getValue(), dpDatumBis.getValue(), cbfakt.getSelectionModel().getSelectedItem().toString()));
 
 		fakturieren.setOnAction(e -> {
+			createPdf(cobPr.getSelectionModel().getSelectedItem().getServerProjekt(), gesamtPreis);
+			for(ArbeitszeitFX einAz : olProjektArbeitszeit) {
+				einAz.getServerArbeitszeit().setFakturiert(true);
+				ServiceFunctionsReturn sfr = ServiceFunctions.put("arbeitszeit", Long.toString(einAz.getZeilennummer()), einAz.getServerArbeitszeit().toXML());
+			}
+			
 
-
-			createPdf(cobPr.getSelectionModel().getSelectedItem().getServerProjekt(), gesamt);
-
+			
 		});
 
 		ButtonType beenden = new ButtonType("Beenden", ButtonData.CANCEL_CLOSE);
@@ -138,12 +161,21 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 
 	}
 
+
+	//PDF Datei erzeugen
+	/**
+	 * 
+	 * @param projekt: Projekt Objekt aus dem ComboBox
+	 * @param gesamt: Ergebnis aus dem TextField
+	 */
 	private void createPdf(Projekt projekt, TextField gesamt) {
 
 
 		try {
+			//Dokument erstellen
 			int i =1;
 			Document document = new Document();
+			//File erstellen, um die fortlaufende Nummerierung der Rechnungen zu ermöglichen
 			String nummer = Integer.toString(i);
 			File f = new File(nummer);
 			while(f.exists()) {
@@ -157,16 +189,15 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 
 
 			PdfWriter.getInstance(document, outputStream);
+			
 			Image logo = Image.getInstance("C:\\Evi\\JavaWifi\\Abschlussprojekt\\logo.jpg");
 			logo.scaleAbsolute(180, 100);
 			logo.setAbsolutePosition(370, 720);
 
 			document.open();
 
-
+			//Logo zum Dokument hinzufügen
 			document.add(logo);
-
-
 			document.add(new Paragraph(" "));
 			document.add(new Paragraph(" "));
 			document.add(new Paragraph(" "));
@@ -174,11 +205,12 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 			document.add(new Paragraph(" "));
 			document.add(new Paragraph(" "));
 			document.add(new Paragraph(" "));
-
+			
+			//Auftraggeber Daten zu Dokument hinzufügen
 			document.add(new Paragraph(projekt.getAuftraggeber().getName()));
 			document.add(new Paragraph(projekt.getAuftraggeber().getAdresse()));
 
-
+			//Rechnungsdatum, Rechnungsnummer und Daten des Rechnungsausstellers hinzufügen
 			Paragraph datum = new Paragraph("Datum: " + LocalDate.now());
 			datum.setAlignment(com.itextpdf.text.Element.ALIGN_RIGHT);
 			document.add(datum);
@@ -194,7 +226,7 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 			Paragraph iban = new Paragraph("IBAN: AT00 0000 0000 0000 0000");
 			iban.setAlignment(com.itextpdf.text.Element.ALIGN_RIGHT);
 			document.add(iban);
-
+			
 			Paragraph rechnung = new Paragraph("Rechnung Nr.: " + nummer + "/" + LocalDate.now().getYear(), 
 					new Font(FontFamily.TIMES_ROMAN, 22, Font.BOLD));
 			rechnung.setIndentationLeft(50);
@@ -205,9 +237,10 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 			document.add(new Paragraph(" "));
 			document.add(new Paragraph(" "));
 
-
+			//Tabelle im pdf Dokument 
 			PdfPTable table1 = new PdfPTable(3);
 
+			//Tabelle über die fakturierten Projektes inkl. gesamtbetrag hinzufügen
 			table1.setWidthPercentage(100);
 			table1.addCell(getCellHeadline("BEZEICHNUNG", PdfPCell.ALIGN_LEFT));
 			table1.addCell(getCellHeadline(" BETRAG", PdfPCell.ALIGN_LEFT));
@@ -221,7 +254,7 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 			table2.addCell(getCell("€ " + gesamt.getText(), PdfPCell.ALIGN_LEFT));
 			table2.addCell(getCell("€ " + gesamt.getText(), PdfPCell.ALIGN_LEFT));
 			document.add(table2);
-			
+
 			PdfPTable table3 = new PdfPTable(3);
 
 			table3.setWidthPercentage(100);
@@ -230,13 +263,14 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 			table3.addCell(getCellNoBorder("€ " + gesamt.getText(), PdfPCell.ALIGN_LEFT));
 			document.add(table3);
 			
+			//Abschliessende Informationen hinzufügen
 			Paragraph zahlung = new Paragraph("Zahlungsbedingungen: ", 
 					new Font(FontFamily.TIMES_ROMAN, 18, Font.BOLD|Font.UNDERLINE));
-			
+
 			document.add(zahlung);
 			document.add(new Paragraph(" "));
 			document.add(new Paragraph("Bis14 Tage 3 % Skonto, Rein netto innerhalb 30 Tagen nach Erhalt der Rechnung spätestens bis zum " + 
-			LocalDate.now().plusDays(30) + "."));
+					LocalDate.now().plusDays(30) + "."));
 			document.add(new Paragraph(" "));
 			document.add(new Paragraph("Ich möchte Sie bitten, den offenen Betrag an obenstehende Bankverbindung zu überweisen.\r\n"
 					+ "Bei Überweisung mittels Internet-Banking tragen Sie bitte im Feld \"Verwendungszweck\" die Rechnungsnummer ein.\r"));
@@ -245,7 +279,7 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 					+ "Alle gelieferten Waren bleiben bis zur vollständigen Bezahlung unser Eigentum."));
 			document.add(new Paragraph(" "));
 			document.add(new Paragraph("Nach § 19 Absatz 1a des Umsatzsteuergesetzes geht die Steuerschuld auf den Leistungsempfänger über."));
-			
+
 
 
 			document.close();
@@ -256,8 +290,14 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 			e.printStackTrace();
 		}
 
-	}
+		new Alert(AlertType.INFORMATION, "Rechnung erstellt").showAndWait();
+		
+		
 
+	}
+	
+	//Methoden zur Tabellen Erstellung im pdf Dokument
+	//Mittlere Zeile in der Tabelle
 	private PdfPCell getCell(String text, int alignment) {
 		Font f = new Font(FontFamily.TIMES_ROMAN, 14, Font.NORMAL);
 		PdfPCell cell = new PdfPCell(new Phrase(text, f));
@@ -268,6 +308,7 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		return cell;
 	}
 
+	//Oberste Zeile in der Tabelle
 	private PdfPCell getCellHeadline(String text, int alignment) {
 		Font f = new Font(FontFamily.TIMES_ROMAN, 18, Font.BOLD);
 		PdfPCell cell = new PdfPCell(new Phrase(text, f));
@@ -278,7 +319,8 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		cell.setPadding(5);
 		return cell;
 	}
-	
+
+	//Untere Zeile in der Tabelle 
 	private PdfPCell getCellNoBorder(String text, int alignment) {
 		Font f = new Font(FontFamily.TIMES_ROMAN, 14, Font.BOLD);
 		PdfPCell cell = new PdfPCell(new Phrase(text, f));
@@ -289,11 +331,27 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		return cell;
 	}
 
-	private void abfragenProjektArbeitszeit(int id, LocalDate value, LocalDate value2) {
-		olProjektArbeitszeit.clear();
-		gesamt.setText("");
+	//Methode zu Abfragen Button
+	/**
+	 * Abfragen einer Liste über die Arbeitszeitzeilen eines ausgewählten Projektes
+	 * innerhalb des ausgewählten Zeitraums
+	 * Berechnung des Projektzeites
+	 * Berechnung des Projektpreises
+	 * 
+	 * @param id: ID des ausgewählten Projekt Objektes aus ComboBox
+	 * @param value: Anfangsdatum der Abfrage aus DatePicker
+	 * @param value2: Enddatum der Abfrage aus DatePicker
+	 * @param selected: Ergebnis aus dem ComboBox
+	 */
+	private void abfragenProjektArbeitszeit(int id, LocalDate value, LocalDate value2, String selected) {
 
-		String paths = Integer.toString(id) + "/" + value.toString() + "/" + value2.toString();
+		olProjektArbeitszeit.clear();
+		gesamtPreis.setText("");
+		
+		if(selected.equals(NICHT_FAKTURIERT)) {
+			selected = "nichtFakturiert";
+		}
+		String paths = Integer.toString(id) + "/" + value.toString() + "/" + value2.toString() + "/" + selected;
 
 		ServiceFunctionsReturn sfr = ServiceFunctions.get("projektarbeitszeitlist", paths);
 		if(sfr.isRc()) {
@@ -302,13 +360,21 @@ public class ProjektArbeitszeitDetailDialog extends Dialog<ButtonType>{
 			for(Arbeitszeit einAz : al.getArbeitszeiten()) {
 				olProjektArbeitszeit.add(new ArbeitszeitFX(einAz));
 			}
+			double gesamtProjektZeit = 0;
+			for(ArbeitszeitFX einAZ : olProjektArbeitszeit) {
+				gesamtProjektZeit += einAZ.getStundengesamt();
+			}
 			double gesamtProjektPreis = 0;
 			for(ArbeitszeitFX einAZ : olProjektArbeitszeit) {
 				gesamtProjektPreis += einAZ.getStundengesamt() * einAZ.getStundensatz();
 			}
-			gesamt.setText(Double.toString(gesamtProjektPreis));
-			if(!olProjektArbeitszeit.isEmpty()) {
+			gesamtZeit.setText(Double.toString(gesamtProjektZeit));
+			gesamtPreis.setText(Double.toString(gesamtProjektPreis));
+			if(!olProjektArbeitszeit.isEmpty() && cbfakt.getSelectionModel().getSelectedItem().equals(NICHT_FAKTURIERT)) {
 				fakturieren.setDisable(false);
+			}
+			else {
+				fakturieren.setDisable(true);	
 			}
 		}
 		else {

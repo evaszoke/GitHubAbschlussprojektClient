@@ -17,6 +17,7 @@ import javafx.util.Callback;
 
 public class AuftraggeberDetailDialog extends Dialog<ButtonType>{
 	public AuftraggeberDetailDialog(AuftraggeberFX auftraggeberFX) {
+		//GUI Elemente des Dialog Fensters
 		this.setTitle("Details des Auftraggebers");
 		GridPane gp = new GridPane();
 		gp.setHgap(10);
@@ -50,7 +51,8 @@ public class AuftraggeberDetailDialog extends Dialog<ButtonType>{
 
 
 		this.getDialogPane().setContent(gp);
-
+		
+		//ButtonTypes des Dialog Fensters
 		ButtonType speichern = new ButtonType("Speichern", ButtonData.OK_DONE);
 		ButtonType beenden = new ButtonType("Beenden", ButtonData.CANCEL_CLOSE);
 
@@ -74,15 +76,15 @@ public class AuftraggeberDetailDialog extends Dialog<ButtonType>{
 			@Override
 			public ButtonType call(ButtonType arg0) {
 				// arg0 beschreibt den ButtonType der geklickt wurde
-				//wenn speichern geklickt wurde, dann den Mitarbeiter an den Server schicken
+				//wenn speichern geklickt wurde, dann den Auftraggeber an den Server schicken
 				if(arg0 == speichern) {
-					// Informationen aus den TextField in das Wein Objekt übertragen
+					// Informationen aus den TextField übertragen
 					auftraggeberFX.getServerAuftraggeber().setName(txtName.getText());
 					auftraggeberFX.getServerAuftraggeber().setAdresse(txtAdresse.getText());
 					auftraggeberFX.getServerAuftraggeber().setTelefon(txtTelefon.getText());
 					auftraggeberFX.getServerAuftraggeber().setEmail(txtEmail.getText());
 			
-					//falls id 0, neuen Auftraggeber posten (einfügen), sonst vonhanden Auftraggeber putten(update)
+					//falls id 0, neuen Auftraggeber posten (einfügen), sonst vonhandenen Auftraggeber putten(update)
 					
 					ServiceFunctionsReturn sfr = auftraggeberFX.getId() == 0 ? ServiceFunctions.post("auftraggeber", Long.toString(auftraggeberFX.getId()), auftraggeberFX.getServerAuftraggeber().toXML()) 
 							: ServiceFunctions.put("auftraggeber", Long.toString(auftraggeberFX.getId()), auftraggeberFX.getServerAuftraggeber().toXML());

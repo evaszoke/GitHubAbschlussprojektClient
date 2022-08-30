@@ -3,6 +3,7 @@ package client;
 import java.time.LocalDate;
 import java.time.LocalTime;
 
+import javafx.beans.property.SimpleBooleanProperty;
 import javafx.beans.property.SimpleDoubleProperty;
 import javafx.beans.property.SimpleIntegerProperty;
 import javafx.beans.property.SimpleObjectProperty;
@@ -13,6 +14,8 @@ import klassen.Mitarbeiter;
 import klassen.Projekt;
 
 public class ArbeitszeitFX {
+	
+	//Instanzvariablen
 	private Arbeitszeit serverArbeitszeit;
 	private SimpleIntegerProperty zeilennummer;
 	private SimpleObjectProperty <LocalDate> datum;
@@ -22,9 +25,10 @@ public class ArbeitszeitFX {
 	private SimpleStringProperty bis;
 	private SimpleDoubleProperty stundengesamt;
 	private SimpleDoubleProperty stundensatz;
+	private SimpleBooleanProperty fakturiert;
 	
 	
-	
+	//Konstruktor
 	public ArbeitszeitFX(Arbeitszeit serverArbeitszeit) {
 		super();
 		this.serverArbeitszeit = serverArbeitszeit;
@@ -36,10 +40,11 @@ public class ArbeitszeitFX {
 		bis = new SimpleStringProperty(serverArbeitszeit.getBis());
 		stundengesamt = new SimpleDoubleProperty(serverArbeitszeit.getStundengesamt());
 		stundensatz = new SimpleDoubleProperty(serverArbeitszeit.getStundensatz());
+		fakturiert = new SimpleBooleanProperty(serverArbeitszeit.isFakturiert());
 		
 	}
 
-
+	//Getters und Setters
 	public Arbeitszeit getServerArbeitszeit() {
 		return serverArbeitszeit;
 	}
@@ -49,7 +54,7 @@ public class ArbeitszeitFX {
 		this.serverArbeitszeit = serverArbeitszeit;
 	}
 
-	
+	//FX Getters und Setters
 	public final SimpleIntegerProperty zeilennummerProperty() {
 		return this.zeilennummer;
 	}
@@ -189,9 +194,20 @@ public class ArbeitszeitFX {
 	public final void setProjekt(final Projekt projekt) {
 		this.projektProperty().set(projekt);
 	}
+
+	public final SimpleBooleanProperty fakturiertProperty() {
+		return this.fakturiert;
+	}
 	
+
+	public final boolean isFakturiert() {
+		return this.fakturiertProperty().get();
+	}
 	
-	
+
+	public final void setFakturiert(final boolean fakturiert) {
+		this.fakturiertProperty().set(fakturiert);
+	}
 	
 	
 	

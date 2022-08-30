@@ -21,6 +21,7 @@ import javafx.scene.control.Label;
 import javafx.scene.control.SelectionMode;
 import javafx.scene.control.Tab;
 import javafx.scene.control.TabPane;
+import javafx.scene.control.TableCell;
 import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
@@ -51,6 +52,8 @@ public class Client extends Application {
 
 	@Override
 	public void start(Stage primaryStage) {
+
+		//Tabs für TabPane erstellen
 		Tab homeTab = new Tab();
 		homeTab.setText("STARTSEITE");
 		Label lbl = new Label();
@@ -68,6 +71,8 @@ public class Client extends Application {
 		projektTab.setText("PROJEKT");
 		Tab arbeitszeitTab = new Tab();
 		arbeitszeitTab.setText("ARBEITSZEIT");
+
+		//TabPane erstellen
 		TabPane tabPane = new TabPane();
 		tabPane.getTabs().addAll(homeTab, mitarbeiterTab, auftraggeberTab, projektTab, arbeitszeitTab);
 		tabPane.setSide(Side.LEFT);
@@ -75,8 +80,7 @@ public class Client extends Application {
 		tabPane.getStylesheets().add("Style.css");
 		tabPane.setId("pane");
 
-
-
+		//TableView Mitarbeiter
 		TableColumn<MitarbeiterFX, Integer> idCol = new TableColumn<>("Id");
 		idCol.setPrefWidth(50);
 		idCol.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -110,6 +114,7 @@ public class Client extends Application {
 				telefonCol, emailCol,  arbeitszeitCol, stundensatzCol);
 		tvMitarbeiter.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
+		//Beim Starten Mitarbeiterliste lesen
 		ServiceFunctionsReturn sfr = ServiceFunctions.get("mitarbeiterlist", null);
 		if(sfr.isRc()) {
 			//MitarbeiterList aus der XML Darstellung vom Server deserialisieren
@@ -123,11 +128,13 @@ public class Client extends Application {
 			new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
 		}
 
+		//Buttons zu Mitarbeiter Tab
 		Button neuMitarbeiter = new Button("Neu");
 		Button bearbeitenMitarbeiter = new Button("Bearbeiten");
 		bearbeitenMitarbeiter.setDisable(true);
 		Button entfernenMitarbeiter = new Button("Entfernen");
 		entfernenMitarbeiter.setDisable(true);
+
 
 		tvMitarbeiter.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<MitarbeiterFX>() {
 
@@ -145,21 +152,19 @@ public class Client extends Application {
 			}
 
 		});
-
+		//Mitarbeiter Tab fertigstellen
 		HBox buttonsMitarbeiter = new HBox(10, neuMitarbeiter, bearbeitenMitarbeiter, entfernenMitarbeiter);
 		VBox vbMitarbeiter = new VBox(10, tvMitarbeiter, buttonsMitarbeiter);
 		vbMitarbeiter.setPadding(new Insets(5));
 		mitarbeiterTab.setContent(vbMitarbeiter);
 
-
-
+		//Event Handler zu Buttons Mitarbeiter Tab
 		neuMitarbeiter.setOnAction(e -> neuerMitarbeiter());
 		entfernenMitarbeiter.setOnAction(e -> loescheMitarbeiter(tvMitarbeiter.getSelectionModel().getSelectedItem()));
 		bearbeitenMitarbeiter.setOnAction(e -> bearbeiteMitarbeiter(tvMitarbeiter.getSelectionModel().getSelectedItem()));
 
 
-
-
+		//TableView Auftraggeber
 		TableColumn<AuftraggeberFX, Integer> idColAg = new TableColumn<>("Id");
 		idColAg.setPrefWidth(100);
 		idColAg.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -182,6 +187,7 @@ public class Client extends Application {
 				telefonColAg, emailColAg);
 		tvAuftraggeber.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
+		//Beim Starten Auftraggeberliste lesen
 		ServiceFunctionsReturn sfrAg = ServiceFunctions.get("auftraggeberlist", null);
 		if(sfrAg.isRc()) {
 			//AuftraggeberList aus der XML Darstellung vom Server deserialisieren
@@ -195,6 +201,7 @@ public class Client extends Application {
 			new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
 		}
 
+		//Buttons zu Auftraggeber Tab
 		Button neuAuftraggeber = new Button("Neu");
 		Button bearbeitenAuftraggeber = new Button("Bearbeiten");
 		bearbeitenAuftraggeber.setDisable(true);
@@ -218,19 +225,19 @@ public class Client extends Application {
 
 		});
 
+		//Auftraggeber Tab fertigstellen
 		HBox buttonsAuftraggeber = new HBox(10, neuAuftraggeber, bearbeitenAuftraggeber, entfernenAuftraggeber);
 		VBox vbAuftraggeber = new VBox(10, tvAuftraggeber, buttonsAuftraggeber);
 		vbAuftraggeber.setPadding(new Insets(5));
 		auftraggeberTab.setContent(vbAuftraggeber);
 
+		//Event Handler zu Buttons Auftraggeber Tab
 		neuAuftraggeber.setOnAction(e -> neuerAuftraggeber());
 		entfernenAuftraggeber.setOnAction(e -> loescheAuftraggeber(tvAuftraggeber.getSelectionModel().getSelectedItem()));
 		bearbeitenAuftraggeber.setOnAction(e -> bearbeiteAuftraggeber(tvAuftraggeber.getSelectionModel().getSelectedItem()));
 
 
-
-
-
+		//TableView Projekt
 		TableColumn<ProjektFX, Integer> idColProj = new TableColumn<>("Id");
 		idColProj.setPrefWidth(100);
 		idColProj.setCellValueFactory(new PropertyValueFactory<>("id"));
@@ -249,14 +256,24 @@ public class Client extends Application {
 		TableColumn<ProjektFX, Boolean> abgeschlossenCol = new TableColumn<>("Abgeschlossen");
 		abgeschlossenCol.setPrefWidth(100);
 		abgeschlossenCol.setCellValueFactory(new PropertyValueFactory<>("abgeschlossen"));
-
+		abgeschlossenCol.setCellFactory(col -> new TableCell<ProjektFX, Boolean>(){
+			@Override
+			protected void updateItem(Boolean item, boolean empty) {
+				super.updateItem(item, empty);
+				setText(empty ? null :
+					item.booleanValue() ? "abgeschlossen" : "offen");
+			}
+		});
+		
+		
+		
+		
 
 		TableView<ProjektFX> tvProjekt = new TableView<>(olProjekt);
 		tvProjekt.getColumns().addAll(idColProj, nameColProj, adresseColProj, telefonColProj, kontaktCol, abgeschlossenCol);
 		tvMitarbeiter.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
-
-
+		//Beim Starten Projektliste lesen
 		ServiceFunctionsReturn sfrPr = ServiceFunctions.get("projektlist", null);
 		if(sfrPr.isRc()) {
 			//ProjektList aus der XML Darstellung vom Server deserialisieren
@@ -270,6 +287,7 @@ public class Client extends Application {
 			new Alert(AlertType.ERROR, new Meldung(sfrPr.getLine()).toString()).showAndWait();
 		}
 
+		//Buttons zu Projekt Tab
 		Button neuProjekt = new Button("Neu");
 		Button bearbeitenProjekt = new Button("Bearbeiten");
 		bearbeitenProjekt.setDisable(true);
@@ -293,22 +311,19 @@ public class Client extends Application {
 
 		});
 
+		//Projekt Tab fertigstellen
 		HBox buttonsProjekt = new HBox(10, neuProjekt, bearbeitenProjekt, entfernenProjekt);
 		VBox vbProjekt = new VBox(10, tvProjekt, buttonsProjekt);
 		vbProjekt.setPadding(new Insets(5));
 		projektTab.setContent(vbProjekt);
 
 
-
+		//Event Handler zu Buttons Projekt Tab
 		neuProjekt.setOnAction(e -> neuerProjekt());
 		entfernenProjekt.setOnAction(e -> loescheProjekt(tvProjekt.getSelectionModel().getSelectedItem()));
 		bearbeitenProjekt.setOnAction(e -> bearbeiteProjekt(tvProjekt.getSelectionModel().getSelectedItem()));
 
-
-
-
-
-
+		//TableView Arbeitszeit
 		TableColumn<ArbeitszeitFX, Integer> nrColAz = new TableColumn<>("Zeilennummer");
 		nrColAz.setPrefWidth(100);
 		nrColAz.setCellValueFactory(new PropertyValueFactory<>("zeilennummer"));
@@ -319,10 +334,10 @@ public class Client extends Application {
 		datumColAz.setPrefWidth(150);
 		datumColAz.setCellValueFactory(new PropertyValueFactory<>("datum"));
 		TableColumn<ArbeitszeitFX, String> vonColAz = new TableColumn<>("Von");
-		vonColAz.setPrefWidth(150);
+		vonColAz.setPrefWidth(100);
 		vonColAz.setCellValueFactory(new PropertyValueFactory<>("von"));
 		TableColumn<ArbeitszeitFX, String> bisColAz = new TableColumn<>("Bis");
-		bisColAz.setPrefWidth(150);
+		bisColAz.setPrefWidth(100);
 		bisColAz.setCellValueFactory(new PropertyValueFactory<>("bis"));
 		TableColumn<ArbeitszeitFX, Double> stundenGesamt = new TableColumn<>("StundenGesamt");
 		stundenGesamt.setPrefWidth(150);
@@ -331,13 +346,26 @@ public class Client extends Application {
 		projektName.setPrefWidth(150);
 		projektName.setCellValueFactory(new PropertyValueFactory<>("projekt"));
 		TableColumn<ArbeitszeitFX, Double> stundensatzColAz = new TableColumn<>("Stundensatz");
-		stundensatzColAz.setPrefWidth(150);
+		stundensatzColAz.setPrefWidth(100);
 		stundensatzColAz.setCellValueFactory(new PropertyValueFactory<>("stundensatz"));
+		TableColumn<ArbeitszeitFX, Boolean> fakturiertCol = new TableColumn<>("Fakturiert");
+		fakturiertCol.setPrefWidth(150);
+		fakturiertCol.setCellValueFactory(new PropertyValueFactory<>("fakturiert"));
+		
+		fakturiertCol.setCellFactory(col -> new TableCell<ArbeitszeitFX, Boolean>(){
+			@Override
+			protected void updateItem(Boolean item, boolean empty) {
+				super.updateItem(item, empty);
+				setText(empty ? null :
+					item.booleanValue() ? "fakturiert" : " ");
+			}
+		});
 
 		TableView<ArbeitszeitFX> tvArbeitszeit = new TableView<>(olArbeitszeit);
-		tvArbeitszeit.getColumns().addAll(nrColAz, mitarbeiterName, datumColAz, projektName, vonColAz, bisColAz, stundenGesamt, stundensatzColAz);
+		tvArbeitszeit.getColumns().addAll(nrColAz, mitarbeiterName, datumColAz, projektName, vonColAz, bisColAz, stundenGesamt, stundensatzColAz, fakturiertCol);
 		tvArbeitszeit.getSelectionModel().setSelectionMode(SelectionMode.SINGLE);
 
+		//Beim Starten Arbeitszeitliste lesen
 		ServiceFunctionsReturn sfrAz = ServiceFunctions.get("arbeitszeitlist", null);
 		if(sfrAz.isRc()) {
 			//ArbeitszeitList aus der XML Darstellung vom Server deserialisieren
@@ -351,6 +379,7 @@ public class Client extends Application {
 			new Alert(AlertType.ERROR, new Meldung(sfrAz.getLine()).toString()).showAndWait();
 		}
 
+		//Buttons zu Arbeitszeit Tab
 		Button neuArbeitszeit = new Button("Neu");
 		Button bearbeitenArbeitszeit = new Button("Bearbeiten");
 		bearbeitenArbeitszeit.setDisable(true);
@@ -376,14 +405,35 @@ public class Client extends Application {
 
 		});
 
+		//Arbeitszeit Tab fertigstellen
 		HBox buttonsArbeitszeit = new HBox(10, neuArbeitszeit, bearbeitenArbeitszeit, entfernenArbeitszeit, arbeitszeitMitarbeiter, arbeitszeitProjekt);
 		VBox vbArbeitszeit = new VBox(10, tvArbeitszeit, buttonsArbeitszeit);
 		vbArbeitszeit.setPadding(new Insets(5));
 		arbeitszeitTab.setContent(vbArbeitszeit);
 
+		//Event Hanlder zu Buttons Arbeitszeit Tab
 		neuArbeitszeit.setOnAction(e -> neueArbeitszeit());
-		entfernenArbeitszeit.setOnAction(e -> loescheArbeitszeit(tvArbeitszeit.getSelectionModel().getSelectedItem()));
-		bearbeitenArbeitszeit.setOnAction(e -> bearbeiteArbeitszeit(tvArbeitszeit.getSelectionModel().getSelectedItem()));
+		
+		entfernenArbeitszeit.setOnAction(e -> {
+		if(tvArbeitszeit.getSelectionModel().getSelectedItem().isFakturiert() == true) {
+			new Alert(AlertType.INFORMATION, "Die Arbeitszeitzeile wurde bereits fakturiert,\n"
+					+ "kann nicht gelöscht werden").showAndWait();
+		}
+		else {
+			loescheArbeitszeit(tvArbeitszeit.getSelectionModel().getSelectedItem());
+		}
+		});
+		
+		bearbeitenArbeitszeit.setOnAction(e -> {
+			if(tvArbeitszeit.getSelectionModel().getSelectedItem().isFakturiert() == true) {
+				new Alert(AlertType.INFORMATION, "Die Arbeitszeitzeile wurde bereits fakturiert,\n"
+						+ "kann nicht bearbeitet werden").showAndWait();
+			}
+			else {
+				bearbeiteArbeitszeit(tvArbeitszeit.getSelectionModel().getSelectedItem());
+			}
+			});
+		
 		arbeitszeitMitarbeiter.setOnAction(e -> abfragenArbeitszeit());
 		arbeitszeitProjekt.setOnAction(e -> abfragenProjektzeit());
 
@@ -397,17 +447,30 @@ public class Client extends Application {
 
 	}
 
+	//Methoden zu Buttons Arbeitszeit
+
+	/**
+	 * Aufrufen eines Dialogfensters zum Abfragen der Gesamtarbeitszeit zu einem ausgewählten Projekt
+	 */
 	private void abfragenProjektzeit() {
 		ArbeitszeitFX arbeitszeitFX = new ArbeitszeitFX(new Arbeitszeit());
 		new ProjektArbeitszeitDetailDialog(arbeitszeitFX).showAndWait();
+		leseArbeitszeitliste();
 	}
 
+	/**
+	 * Aufrufen eines Dialogfensters zum Abfragen der Gesamtarbeitszeit von einem ausgewählten Mitarbeiter
+	 */
 	private void abfragenArbeitszeit() {
 		ArbeitszeitFX arbeitszeitFX = new ArbeitszeitFX(new Arbeitszeit());
 		new MitarbeiterArbeitszeitDetailDialog(arbeitszeitFX).showAndWait();
 	}
 
-
+	/**
+	 * Entfernen der ausgewählten Arbeitszeitzeile
+	 * 
+	 * @param arbeitszeitFX Arbeitszeit Objekt aus der TableView
+	 */
 	private void loescheArbeitszeit(ArbeitszeitFX arbeitszeitFX) {
 		Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie die Arbeitszeitzeile löschen?");
 		Optional<ButtonType> result = alert.showAndWait();
@@ -422,9 +485,14 @@ public class Client extends Application {
 				new Alert(AlertType.ERROR, new Meldung(sfr.getLine()).toString()).showAndWait();
 			}
 		}
-		
+
 	}
 
+	/**
+	 * Bearbeiten und aktualisieren der ausgewählten Arbeitszeitzeile
+	 * 
+	 * @param arbeitszeitFX Arbeitszeit Objekt aus der TableView
+	 */
 	private void bearbeiteArbeitszeit(ArbeitszeitFX arbeitszeitFX) {
 		Optional<ButtonType> r = new ArbeitszeitDetailDialog(arbeitszeitFX).showAndWait();
 		if(r.isPresent() && r.get().getButtonData() == ButtonData.OK_DONE) {
@@ -436,6 +504,9 @@ public class Client extends Application {
 		}
 	}
 
+	/**
+	 * Erstellen einer neuen Arbeitszeitzeile
+	 */
 	private void neueArbeitszeit() {
 		ArbeitszeitFX arbeitszeitFX = new ArbeitszeitFX(new Arbeitszeit());
 		Optional<ButtonType> r = new ArbeitszeitDetailDialog(arbeitszeitFX).showAndWait();
@@ -444,6 +515,9 @@ public class Client extends Application {
 		}
 	}
 
+	/**
+	 * Objekte aus der Arbeitszeit Tabelle werden in eine ArrayList gespeichert
+	 */
 	private void leseArbeitszeitliste() {
 		olArbeitszeit.clear();
 		ServiceFunctionsReturn sfr = ServiceFunctions.get("arbeitszeitlist", null);
@@ -461,17 +535,26 @@ public class Client extends Application {
 
 	}
 
+	//Methoden zu Buttons Projekt
+
+	/**
+	 * Entfernen des ausgewählten Projektes
+	 * Falls das Projekt bereits in einer Arbeitszeitzeile verwendet wurde, dann kann nicht mehr gelöscht werden
+	 * 
+	 * @param projektFX Projekt Objekt aus der TableView
+	 */
 	private void loescheProjekt(ProjektFX projektFX) {
 		boolean inVerwendung = false;
 		for(ArbeitszeitFX einAz : olArbeitszeit) {
 			if(projektFX.getId() == einAz.getProjekt().getId()) {
-				new Alert(AlertType.INFORMATION, "Projekt in Verwendung, kann nicht gelöscht werden").showAndWait();
+				new Alert(AlertType.INFORMATION, "Für das Projekt " + projektFX.getName() +  " wurden bereits Arbeitszeiten eingegeben\n,"
+						+ " kann nicht gelöscht werden").showAndWait();
 				inVerwendung = true;
 				break;
 			}
 		}
 		if(inVerwendung == false) {
-			Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie das Projekt löschen?");
+			Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie das Projekt " + projektFX.getName() +  " löschen?");
 			Optional<ButtonType> result = alert.showAndWait();
 			if(result.get() == ButtonType.OK) {
 				ServiceFunctionsReturn sfr = ServiceFunctions.delete("projekt", Long.toString(projektFX.getId()));
@@ -490,6 +573,11 @@ public class Client extends Application {
 
 	}
 
+	/**
+	 * Bearbeiten und aktualisieren des ausgewählten Projektes
+	 * 
+	 * @param projektFX Projekt Objekt aus der TableView
+	 */
 	private void bearbeiteProjekt(ProjektFX projektFX) {
 		Optional<ButtonType> r = new ProjektDetailDialog(projektFX).showAndWait();
 		if(r.isPresent() && r.get().getButtonData() == ButtonData.OK_DONE) {
@@ -501,6 +589,9 @@ public class Client extends Application {
 		}
 	}
 
+	/**
+	 * Erstellen eines Projektes
+	 */
 	private void neuerProjekt() {
 		ProjektFX projektFX = new ProjektFX(new Projekt());
 		Optional<ButtonType> r = new ProjektDetailDialog(projektFX).showAndWait();
@@ -509,6 +600,9 @@ public class Client extends Application {
 		}
 	}
 
+	/**
+	 * Objekte aus der Projekt Tabelle werden in eine ArrayList gespeichert
+	 */
 	private void leseProjektliste() {
 		olProjekt.clear();
 		ServiceFunctionsReturn sfr = ServiceFunctions.get("projektlist", null);
@@ -526,6 +620,13 @@ public class Client extends Application {
 
 	}
 
+	//Methoden zu Buttons Auftraggeber
+
+	/**
+	 * Bearbeiten und aktualisieren des ausgewählten Auftraggebers
+	 * 
+	 * @param auftraggeberFX Auftraggeber Objekt aus der TableVieW
+	 */
 	private void bearbeiteAuftraggeber(AuftraggeberFX auftraggeberFX) {
 		Optional<ButtonType> r = new AuftraggeberDetailDialog(auftraggeberFX).showAndWait();
 		if(r.isPresent() && r.get().getButtonData() == ButtonData.OK_DONE) {
@@ -537,17 +638,24 @@ public class Client extends Application {
 		}
 	}
 
+	/**
+	 * Entfernen des ausgewählten Auftraggebers
+	 * Falls Auftraggeber bereits zu einem Projekt zugeordnet wurde, kann nicht gelöscht werden
+	 * 
+	 * @param auftraggeberFX Auftraggeber Objekt aus der TableView
+	 */
 	private void loescheAuftraggeber(AuftraggeberFX auftraggeberFX) {
 		boolean inVerwendung = false;
 		for(ProjektFX einP : olProjekt) {
 			if(auftraggeberFX.getId() == einP.getAuftraggeber().getId()) {
-				new Alert(AlertType.INFORMATION, "Auftraggeber in Verwendung, kann nicht gelöscht werden").showAndWait();
+				new Alert(AlertType.INFORMATION, auftraggeberFX.getName() + " wurde bereits zu einem Projekt zugeordnet,\n"
+						+ "kann nicht gelöscht werden").showAndWait();
 				inVerwendung = true;
 				break;
 			}
 		}
 		if(inVerwendung == false) {
-			Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie den Auftraggeber löschen?");
+			Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie den Auftraggeber " + auftraggeberFX.getName() + " löschen?");
 			Optional<ButtonType> result = alert.showAndWait();
 			if(result.get() == ButtonType.OK) {
 				ServiceFunctionsReturn sfr = ServiceFunctions.delete("auftraggeber", Long.toString(auftraggeberFX.getId()));
@@ -562,6 +670,9 @@ public class Client extends Application {
 		}
 	}
 
+	/**
+	 * Erstellen eines neuen Auftraggebers
+	 */
 	private void neuerAuftraggeber() {
 		AuftraggeberFX auftraggeberFX = new AuftraggeberFX(new Auftraggeber());
 		Optional<ButtonType> r = new AuftraggeberDetailDialog(auftraggeberFX).showAndWait();
@@ -570,6 +681,9 @@ public class Client extends Application {
 		}
 	}
 
+	/**
+	 * Objekte aus der Auftraggeber Tabelle werden in eine ArrayList gespeichert
+	 */
 	private void leseAuftraggeberliste() {
 		olAuftraggeber.clear();
 		ServiceFunctionsReturn sfr = ServiceFunctions.get("auftraggeberlist", null);
@@ -587,6 +701,13 @@ public class Client extends Application {
 
 	}
 
+	//Methoden zu Buttons Mitarbeiter
+
+	/**
+	 * Bearbeiten und aktualisieren des ausgewählten Mitarbeiters
+	 * 
+	 * @param mitarbeiterFX Mitarbeiter Objekt aus der TableView
+	 */
 	private void bearbeiteMitarbeiter(MitarbeiterFX mitarbeiterFX) {
 		Optional<ButtonType> r = new MitarbeiterDetailDialog(mitarbeiterFX).showAndWait();
 		if(r.isPresent() && r.get().getButtonData() == ButtonData.OK_DONE) {
@@ -597,19 +718,25 @@ public class Client extends Application {
 			new Alert(AlertType.INFORMATION, "nicht geändert").showAndWait();
 		}
 	}
-
+	/**
+	 * Entfernen des ausgewählten Mitarbeiters
+	 * Falls das Mitarbeiter Objekt bereits in einer Arbeitszeitzeile verwendet wird, kann nicht gelöscht werden
+	 * 
+	 * @param mitarbeiterFX Mitarbeiter Objekt aus der TableView
+	 */
 	private void loescheMitarbeiter(MitarbeiterFX mitarbeiterFX) {
 		boolean inVerwendung = false;
 		for(ArbeitszeitFX einAz : olArbeitszeit) {
 			if(mitarbeiterFX.getId() == einAz.getMitarbeiter().getId()) {
-				new Alert(AlertType.INFORMATION, "Mitarbeiter in Verwendung, kann nicht gelöscht werden").showAndWait();
+				new Alert(AlertType.INFORMATION, "Für " + mitarbeiterFX.getName() + " wurden bereits Arbeitszeiten eingegeben,\n"
+						+ "kann nicht gelöscht werden").showAndWait();
 				inVerwendung = true;
 				break;
 
 			}
 		}
 		if(inVerwendung == false) {
-			Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie den Mitarbeiter löschen?");
+			Alert alert = new Alert(AlertType.CONFIRMATION, "Wollen Sie " + mitarbeiterFX.getName() + " löschen?");
 			Optional<ButtonType> result = alert.showAndWait();
 			if(result.get() == ButtonType.OK) {
 
@@ -626,6 +753,9 @@ public class Client extends Application {
 		}
 	}
 
+	/**
+	 * Erstellen eines neuen Mitarbeiters
+	 */
 	private void neuerMitarbeiter() {
 		MitarbeiterFX mitarbeiterFX = new MitarbeiterFX(new Mitarbeiter());
 		Optional<ButtonType> r = new MitarbeiterDetailDialog(mitarbeiterFX).showAndWait();
@@ -634,8 +764,9 @@ public class Client extends Application {
 		}
 	}
 
-
-
+	/**
+	 * Objekte aus der Mitarbeiter Tabelle werden in eine ArrayList gespeichert
+	 */
 	private void leseMitarbeiterliste() {
 		olMitarbeiter.clear();
 		ServiceFunctionsReturn sfr = ServiceFunctions.get("mitarbeiterlist", null);

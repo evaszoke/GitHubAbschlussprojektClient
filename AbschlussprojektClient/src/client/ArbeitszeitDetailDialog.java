@@ -29,9 +29,11 @@ import klassen.ProjektList;
 
 public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 	
+	//Instanzvariable
 	Double stundensatz;
 	
 	public ArbeitszeitDetailDialog(ArbeitszeitFX arbeitszeitFX) {
+		//GUI Elemente des Dialog Fensters
 		this.setTitle("Arbeitszeitaufzeichnung");
 		GridPane gp = new GridPane();
 		gp.setHgap(10);
@@ -48,6 +50,7 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		gp.add(new Label("Datum"), 0, 1);
 		gp.add(dpDatum, 1, 1);
 		
+		//Liste für ComboBox Mitarbeiter 
 		ObservableList<MitarbeiterFX> olma = FXCollections.observableArrayList();
 		ServiceFunctionsReturn sfrMa = ServiceFunctions.get("mitarbeiterlist", null);
 		if(sfrMa.isRc()) {
@@ -74,13 +77,16 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		gp.add(cobMa, 1, 2);
 		
 		
-		
+		//Liste für ComboBox Projekte
+		//In der Liste werden nur die nicht abgeschlossene Projekte angezeigt
 		ObservableList<ProjektFX> olpr = FXCollections.observableArrayList();
 		ServiceFunctionsReturn sfrPr = ServiceFunctions.get("projektlist", null);
 		if(sfrPr.isRc()) {
 			ProjektList pl = new ProjektList(sfrPr.getLine());
 			for(Projekt einPr : pl.getProjekte()) {
-				olpr.add(new ProjektFX(einPr));
+				if (einPr.isAbgeschlossen() == false) {
+					olpr.add(new ProjektFX(einPr));
+				}
 			}
 		}
 		ComboBox <ProjektFX> cobPr = new ComboBox<>();
@@ -100,6 +106,7 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		gp.add(new Label("Projekt"), 0, 3);
 		gp.add(cobPr, 1, 3);
 		
+		//ComboBox von  
 		ComboBox <String> cbVonSt = new ComboBox<>();  
 		cbVonSt.setItems(FXCollections.observableArrayList("00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"));
 		ComboBox <String> cbVonMin = new ComboBox<>();  
@@ -114,7 +121,7 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 			cbVonMin.getSelectionModel().select(b);
 		}
 		
-		
+		//ComboBox bis
 		ComboBox <String> cbBisSt = new ComboBox<>();  
 		cbBisSt.setItems(FXCollections.observableArrayList("00", "01", "02", "03", "04", "05", "06", "07", "08", "09", "10", "11", "12", "13", "14", "15", "16", "17", "18", "19", "20", "21", "22", "23"));
 		ComboBox <String> cbBisMin = new ComboBox<>();  
@@ -130,7 +137,6 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		}
 	
 		
-		
 		TextField txtStundensatz = new TextField(Double.toString(arbeitszeitFX.getStundensatz()));
 		txtStundensatz.setPrefWidth(200);
 		gp.add(new Label("Stundensatz"), 0, 6);
@@ -140,9 +146,15 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		cb.setPrefWidth(200);
 		gp.add(cb, 0, 7);
 		
-		if(cb.isSelected()) {
-			arbeitszeitFX.getServerArbeitszeit().isFakturiert();
+		if(arbeitszeitFX.isFakturiert()) {
+			cb.setSelected(true);
 		}
+		else {
+			cb.setSelected(false);
+		}
+		
+		//Event Filter für ComboBox Mitarbeiter, beim erstmaligen Auswählen des Mitarbeiters wird
+		//der Stundensatz des Mitarbeiters übernommen
 		cobMa.getSelectionModel().selectedItemProperty().addListener(new ChangeListener<MitarbeiterFX>() {
 
 			@Override
@@ -156,6 +168,7 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 
 		this.getDialogPane().setContent(gp);
 
+		//ButtonTypes des Dialog Fensters
 		ButtonType speichern = new ButtonType("Speichern", ButtonData.OK_DONE);
 		ButtonType beenden = new ButtonType("Beenden", ButtonData.CANCEL_CLOSE);
 
@@ -177,6 +190,36 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 				e.consume();
 				return;
 			}
+			else if(dpDatum.getValue() == null) {
+				new Alert(AlertType.ERROR, "Datum eingeben!").showAndWait();
+				//Event als abgeschlossen markieren, wird nicht mehr weiterverarbeitet
+				e.consume();
+				return;
+			}
+			else if(cbVonSt.getSelectionModel().getSelectedItem() == null) {
+				new Alert(AlertType.ERROR, "Von Stunde eingeben!").showAndWait();
+				//Event als abgeschlossen markieren, wird nicht mehr weiterverarbeitet
+				e.consume();
+				return;
+			}
+			else if(cbVonMin.getSelectionModel().getSelectedItem() == null) {
+				new Alert(AlertType.ERROR, "Von Minute eingeben!").showAndWait();
+				//Event als abgeschlossen markieren, wird nicht mehr weiterverarbeitet
+				e.consume();
+				return;
+			}
+			else if(cbBisSt.getSelectionModel().getSelectedItem() == null) {
+				new Alert(AlertType.ERROR, "Bis Stunde eingeben!").showAndWait();
+				//Event als abgeschlossen markieren, wird nicht mehr weiterverarbeitet
+				e.consume();
+				return;
+			}
+			else if(cbBisMin.getSelectionModel().getSelectedItem() == null) {
+				new Alert(AlertType.ERROR, "Bis Minute eingeben!").showAndWait();
+				//Event als abgeschlossen markieren, wird nicht mehr weiterverarbeitet
+				e.consume();
+				return;
+			}
 		});
 
 		// Abschließende Aktion bei Verlassen des Dialogs
@@ -187,12 +230,13 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 				// arg0 beschreibt den ButtonType der geklickt wurde
 				//wenn speichern geklickt wurde, dann den Arbeitszeit an den Server schicken
 				if(arg0 == speichern) {
-					// Informationen aus den TextField in das Wein Objekt übertragen
+					// Informationen aus den DatePicker / TextField / Combobox übertragen
 					
 				
 					arbeitszeitFX.getServerArbeitszeit().setDatum(dpDatum.getValue());
 					arbeitszeitFX.getServerArbeitszeit().setMitarbeiter(cobMa.getSelectionModel().getSelectedItem().getServerMitarbeiter());
 					arbeitszeitFX.getServerArbeitszeit().setProjekt(cobPr.getSelectionModel().getSelectedItem().getServerProjekt());
+					
 					
 					int stunden = Integer.parseInt(cbVonSt.getSelectionModel().getSelectedItem());
 							
@@ -202,10 +246,10 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 					
 					arbeitszeitFX.getServerArbeitszeit().setVon(von);
 					
+					
 					int stundenBis = Integer.parseInt(cbBisSt.getSelectionModel().getSelectedItem());
 					int minutenBis = Integer.parseInt(cbBisMin.getSelectionModel().getSelectedItem());
 					String bis = String.format("%02d:%02d", stundenBis, minutenBis);
-					
 					
 					arbeitszeitFX.getServerArbeitszeit().setBis(bis);
 					
@@ -213,9 +257,14 @@ public class ArbeitszeitDetailDialog extends Dialog<ButtonType>{
 					arbeitszeitFX.getServerArbeitszeit().setStundengesamt(gesamt);
 						
 					arbeitszeitFX.getServerArbeitszeit().setStundensatz(Double.parseDouble(txtStundensatz.getText()));
-					arbeitszeitFX.getServerArbeitszeit().setFakturiert(cb.isSelected());
+					if(cb.isSelected()) {
+						arbeitszeitFX.getServerArbeitszeit().setFakturiert(true);
+					}
+					else {
+						arbeitszeitFX.getServerArbeitszeit().setFakturiert(false);
+					}
 					
-					//falls id 0, neuen Auftraggeber posten (einfügen), sonst vonhanden Auftraggeber putten(update)
+					//falls id 0, neue Arbeitszeitzeile posten (einfügen), sonst vonhandene Arbeitszeitzeile putten(update)
 					
 					ServiceFunctionsReturn sfr = arbeitszeitFX.getZeilennummer() == 0 ? ServiceFunctions.post("arbeitszeit", Long.toString(arbeitszeitFX.getZeilennummer()), arbeitszeitFX.getServerArbeitszeit().toXML()) 
 							: ServiceFunctions.put("arbeitszeit", Long.toString(arbeitszeitFX.getZeilennummer()), arbeitszeitFX.getServerArbeitszeit().toXML());

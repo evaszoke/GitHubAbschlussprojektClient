@@ -10,6 +10,8 @@ import klassen.Auftraggeber;
 import klassen.Mitarbeiter;
 
 public class AuftraggeberFX {
+	
+	//Instanzvariablen
 	private Auftraggeber serverAuftraggeber;
 	private SimpleIntegerProperty id;
 	private SimpleStringProperty name;
@@ -17,7 +19,7 @@ public class AuftraggeberFX {
 	private SimpleStringProperty telefon;
 	private SimpleStringProperty email;
 	
-	
+	//Konstruktor
 	public AuftraggeberFX(Auftraggeber serverAuftraggeber) {
 		super();
 		this.serverAuftraggeber = serverAuftraggeber;
@@ -28,7 +30,7 @@ public class AuftraggeberFX {
 		email= new SimpleStringProperty(serverAuftraggeber.getEmail());
 	}
 
-
+	//Getters und Setters
 	public Auftraggeber getServerAuftraggeber() {
 		return serverAuftraggeber;
 	}
@@ -38,7 +40,7 @@ public class AuftraggeberFX {
 		this.serverAuftraggeber = serverAuftraggeber;
 	}
 
-
+	//FX Getters und Setters
 	public final SimpleIntegerProperty idProperty() {
 		return this.id;
 	}
@@ -128,6 +130,7 @@ public class AuftraggeberFX {
 	}
 
 
+	//toString Methode
 	@Override
 	public String toString() {
 		return name.get();

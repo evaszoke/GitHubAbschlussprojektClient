@@ -1,6 +1,6 @@
 package client;
 
-import java.time.LocalDate;
+
 
 import javafx.event.ActionEvent;
 import javafx.geometry.Insets;
@@ -15,10 +15,11 @@ import javafx.scene.control.Label;
 import javafx.scene.control.TextField;
 import javafx.scene.layout.GridPane;
 import javafx.util.Callback;
-import klassen.Mitarbeiter;
+
 
 public class MitarbeiterDetailDialog extends Dialog<ButtonType> {
 	public MitarbeiterDetailDialog(MitarbeiterFX mitarbeiterFX) {
+		//GUI Elemente des Dialog Fensters
 		this.setTitle("Details des Mitarbeiters");
 		GridPane gp = new GridPane();
 		gp.setHgap(10);
@@ -72,7 +73,8 @@ public class MitarbeiterDetailDialog extends Dialog<ButtonType> {
 
 
 		this.getDialogPane().setContent(gp);
-
+		
+		//ButtonTypes des Dialog Fensters
 		ButtonType speichern = new ButtonType("Speichern", ButtonData.OK_DONE);
 		ButtonType beenden = new ButtonType("Beenden", ButtonData.CANCEL_CLOSE);
 
@@ -114,7 +116,7 @@ public class MitarbeiterDetailDialog extends Dialog<ButtonType> {
 				// arg0 beschreibt den ButtonType der geklickt wurde
 				//wenn speichern geklickt wurde, dann den Mitarbeiter an den Server schicken
 				if(arg0 == speichern) {
-					// Informationen aus den TextField in das Wein Objekt übertragen
+					// Informationen aus den TextField / DatePicker übertragen
 					mitarbeiterFX.getServerMitarbeiter().setName(txtName.getText());
 					mitarbeiterFX.getServerMitarbeiter().setAdresse(txtAdresse.getText());
 					mitarbeiterFX.getServerMitarbeiter().setGeburtsdat(dpGeburtsdat.getValue());
@@ -124,20 +126,13 @@ public class MitarbeiterDetailDialog extends Dialog<ButtonType> {
 					mitarbeiterFX.getServerMitarbeiter().setWochenarbeitszeit(Double.parseDouble(txtArbeitszeit.getText()));
 					mitarbeiterFX.getServerMitarbeiter().setStundensatz(Double.parseDouble(txtStundensatz.getText()));
 			
-					//falls id 0, neuen Mitarbeiter posten (einfügen), sonst vonhanden Mitarbeiter putten(update)
-				
-					//ServiceFunctionsReturn sfr = ServiceFunctions.post("mitarbeiter", Long.toString(mitarbeiterFX.getId()), mitarbeiterFX.getServerMitarbeiter().toXML());
-					
+					//falls id 0, neuen Mitarbeiter posten (einfügen), sonst vonhandenen Mitarbeiter putten(update)
+									
 					
 					ServiceFunctionsReturn sfr = mitarbeiterFX.getId() == 0 ? ServiceFunctions.post("mitarbeiter", Long.toString(mitarbeiterFX.getId()), mitarbeiterFX.getServerMitarbeiter().toXML()) 
 							: ServiceFunctions.put("mitarbeiter", Long.toString(mitarbeiterFX.getId()), mitarbeiterFX.getServerMitarbeiter().toXML());
 
-//					ServiceFunctionsReturn sfr = mitarbeiterFX.getId() == 0 ? ServiceFunctions.post(mitarbeiterFX.getServerMitarbeiter(), mitarbeiterFX.getId());
-//							ServiceFunctions.postWein(weinFX.getServerWein()) : ServiceFunctions.putWein(weinFX.getServerWein());
-//					if(!sfr.isRc()) {
-//						new Alert(AlertType.ERROR, sfr.getMeldung()).showAndWait();
-//						return null;
-//					}
+
 				}
 				return arg0;
 			}

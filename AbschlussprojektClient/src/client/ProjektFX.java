@@ -9,6 +9,7 @@ import klassen.Projekt;
 
 public class ProjektFX {
 	
+	//Instanzvariablen
 	private Projekt serverProjekt;
 	private SimpleIntegerProperty id;
 	private SimpleStringProperty name;
@@ -18,6 +19,7 @@ public class ProjektFX {
 	private SimpleBooleanProperty abgeschlossen;
 	private Auftraggeber auftraggeber;
 	
+	//Konstruktor
 	public ProjektFX(Projekt serverProjekt) {
 		super();
 		this.serverProjekt = serverProjekt;
@@ -30,6 +32,7 @@ public class ProjektFX {
 		abgeschlossen = new SimpleBooleanProperty(serverProjekt.isAbgeschlossen());
 	}
 
+	//Getters und Setters
 	public Projekt getServerProjekt() {
 		return serverProjekt;
 	}
@@ -47,7 +50,7 @@ public class ProjektFX {
 	}
 	
 	
-
+	//FX Getters und Setters
 	public final SimpleIntegerProperty idProperty() {
 		return this.id;
 	}
@@ -136,6 +139,7 @@ public class ProjektFX {
 		this.abgeschlossenProperty().set(abgeschlossen);
 	}
 
+	//toString Methode
 	@Override
 	public String toString() {
 		return name.get();

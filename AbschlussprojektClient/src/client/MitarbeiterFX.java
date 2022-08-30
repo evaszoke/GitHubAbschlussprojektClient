@@ -10,6 +10,7 @@ import klassen.Mitarbeiter;
 
 public class MitarbeiterFX {
 	
+	//Instanzvariablen
 	private Mitarbeiter serverMitarbeiter;
 	private SimpleIntegerProperty id;
 	private SimpleStringProperty name;
@@ -21,7 +22,7 @@ public class MitarbeiterFX {
 	private SimpleDoubleProperty wochenarbeitszeit;
 	private SimpleDoubleProperty stundensatz;
 	
-	
+	//Konstruktor
 	public MitarbeiterFX(Mitarbeiter serverMitarbeiter) {
 		super();
 		this.serverMitarbeiter = serverMitarbeiter;
@@ -38,7 +39,7 @@ public class MitarbeiterFX {
 	}
 	
 	
-
+	//Getters und Setters
 	public Mitarbeiter getServerMitarbeiter() {
 		return serverMitarbeiter;
 	}
@@ -50,7 +51,7 @@ public class MitarbeiterFX {
 	}
 
 
-
+	//FX Getters und Setters
 	public final SimpleIntegerProperty idProperty() {
 		return this.id;
 	}
@@ -203,8 +204,8 @@ public class MitarbeiterFX {
 		this.stundensatzProperty().set(stundensatz);
 	}
 
-
-
+	
+	//toString Methode
 	@Override
 	public String toString() {
 		return name.get();

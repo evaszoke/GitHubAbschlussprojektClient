@@ -31,10 +31,12 @@ import klassen.Projekt;
 
 public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 	
+	//Instanzvariablen
 	private ObservableList<ArbeitszeitFX> olMitarbeiterArbeitszeit = FXCollections.observableArrayList();
 	private TextField gesamt = new TextField();
 	
 	public MitarbeiterArbeitszeitDetailDialog(ArbeitszeitFX arbeitszeitFX) {
+		//GUI Elemente des Dialog Fensters
 		this.setTitle("Arbeitszeitaufstellung");
 		olMitarbeiterArbeitszeit.clear();
 		GridPane gp = new GridPane();
@@ -46,7 +48,7 @@ public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		
 		gp.add(new Label("Mitarbeiter"), 0, 0);
 		
-		
+		//Liste für ComboBox Mitarbeiter 
 		ObservableList<MitarbeiterFX> olma = FXCollections.observableArrayList();
 		ServiceFunctionsReturn sfrMa = ServiceFunctions.get("mitarbeiterlist", null);
 		if(sfrMa.isRc()) {
@@ -59,6 +61,7 @@ public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		cobMa.setItems(olma);
 		gp.add(cobMa, 1, 0);
 		
+		//DatePicker für Datum von und Datum bis
 		gp.add(new Label("Datum von"), 0, 1);
 		DatePicker dpDatumVon = new DatePicker();   
 		dpDatumVon.setPrefWidth(200);
@@ -69,9 +72,11 @@ public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		dpDatumBis.setPrefWidth(200);
 		gp.add(dpDatumBis, 1, 2);
 		
-//		HBox hbButton = new HBox();
+		
 		Button abfragen = new Button("Abfragen");
 		
+		
+		//TableView Arbeitszeit
 		TableColumn<ArbeitszeitFX, Mitarbeiter> mitarbeiterName = new TableColumn<>("Mitarbeiter");
 		mitarbeiterName.setPrefWidth(150);
 		mitarbeiterName.setCellValueFactory(new PropertyValueFactory<>("mitarbeiter"));
@@ -95,6 +100,7 @@ public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		
 		this.getDialogPane().setContent(vb);
 		
+		//Event Handler für Button "abfragen"
 		abfragen.setOnAction(e -> abfragenMitarbeiterArbeitszeit(
 				cobMa.getSelectionModel().getSelectedItem().getServerMitarbeiter().getId(), 
 				dpDatumVon.getValue(), dpDatumBis.getValue()));
@@ -107,6 +113,16 @@ public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 		
 	}
 
+	//Methode zu Button "abfragen"
+	/**
+	 * Abfragen einer Liste über die Arbeitszeitzeilen eines ausgewählten Mitarbeiters
+	 * innerhalb des ausgewählten Zeitraums
+	 * Berechnung des Gesamtarbeitszeites
+	 * 
+	 * @param id: ID des ausgewählten Mitarbeiter Objekts
+	 * @param value: Anfangsdatum der Abfrage aus DatePicker
+	 * @param value2: Enddatum der Abfrage aus DatePicker
+	 */
 	private void abfragenMitarbeiterArbeitszeit(int id, LocalDate value, LocalDate value2) {
 		olMitarbeiterArbeitszeit.clear();
 		gesamt.setText("");
@@ -124,6 +140,7 @@ public class MitarbeiterArbeitszeitDetailDialog extends Dialog<ButtonType>{
 			for(ArbeitszeitFX einAZ : olMitarbeiterArbeitszeit) {
 				gesamtArbeitszeit += einAZ.getStundengesamt();
 			}
+			//Berechnung Gesamtarbeitszeit
 			gesamt.setText(Double.toString(gesamtArbeitszeit));
 		}
 		else {
