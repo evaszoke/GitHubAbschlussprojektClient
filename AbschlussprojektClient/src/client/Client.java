@@ -1,8 +1,18 @@
 package client;
 
+import java.awt.Graphics;
+import java.awt.image.BufferedImage;
+import java.io.File;
+import java.io.IOException;
+import java.net.URI;
+import java.nio.file.Paths;
 import java.time.LocalDate;
 import java.time.LocalTime;
 import java.util.Optional;
+
+import javax.imageio.ImageIO;
+
+import com.itextpdf.text.Font.FontFamily;
 
 import javafx.application.Application;
 import javafx.beans.value.ChangeListener;
@@ -10,6 +20,7 @@ import javafx.beans.value.ObservableValue;
 import javafx.collections.FXCollections;
 import javafx.collections.ObservableList;
 import javafx.geometry.Insets;
+import javafx.geometry.Pos;
 import javafx.geometry.Side;
 import javafx.scene.Scene;
 import javafx.scene.control.Alert;
@@ -26,11 +37,16 @@ import javafx.scene.control.TableColumn;
 import javafx.scene.control.TableView;
 import javafx.scene.control.cell.CheckBoxTableCell;
 import javafx.scene.control.cell.PropertyValueFactory;
+import javafx.scene.image.ImageView;
 import javafx.scene.layout.BorderPane;
 import javafx.scene.layout.HBox;
+import javafx.scene.layout.StackPane;
 import javafx.scene.layout.VBox;
 import javafx.scene.paint.Color;
 import javafx.scene.text.Font;
+import javafx.scene.text.FontPosture;
+import javafx.scene.text.FontWeight;
+import javafx.scene.text.Text;
 import javafx.stage.Stage;
 import klassen.Arbeitszeit;
 import klassen.ArbeitszeitList;
@@ -50,19 +66,25 @@ public class Client extends Application {
 	private ObservableList<ArbeitszeitFX> olArbeitszeit = FXCollections.observableArrayList();
 
 
+	@SuppressWarnings("unchecked")
 	@Override
 	public void start(Stage primaryStage) {
 
 		//Tabs für TabPane erstellen
 		Tab homeTab = new Tab();
 		homeTab.setText("STARTSEITE");
-		Label lbl = new Label();
-		lbl.setPrefSize(500, 200);
-		lbl.setText("Willkommen!");
-		lbl.setFont(new Font("Sherif", 70));
-		BorderPane bp = new BorderPane();
-		homeTab.setContent(bp);
-		bp.setCenter(lbl);
+		URI uri = Paths.get("C:\\Evi\\JavaWifi\\Abschlussprojekt\\bild_startseite.jpg").toUri();
+		StackPane sp = new StackPane();
+		ImageView iv = new ImageView(uri.toString());
+		Text willkommen = new Text("Willkommen!");
+		willkommen.setFill(Color.RED);
+	
+		sp.getChildren().add(iv);
+		sp.getChildren().add(willkommen);
+		sp.setId("Text_Startseite");
+		sp.setAlignment(Pos.CENTER);
+		homeTab.setContent(sp);
+		
 		Tab mitarbeiterTab = new Tab();
 		mitarbeiterTab.setText("MITARBEITER");
 		Tab auftraggeberTab = new Tab();
@@ -79,6 +101,8 @@ public class Client extends Application {
 		tabPane.setRotateGraphic(false);
 		tabPane.getStylesheets().add("Style.css");
 		tabPane.setId("pane");
+		
+		
 
 		//TableView Mitarbeiter
 		TableColumn<MitarbeiterFX, Integer> idCol = new TableColumn<>("Id");

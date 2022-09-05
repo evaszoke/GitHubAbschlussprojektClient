@@ -5,6 +5,7 @@ module abschlussprojektClient {
 	requires javafx.controls;
 	requires java.net.http;
 	requires itextpdf;
+	requires java.desktop;
 
 
 	
